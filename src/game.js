@@ -1,49 +1,22 @@
 // Main Game Logic
-
 var game = new ex.Engine();
+var groundHeight = game.getHeight() - Config.groundOffset / 2;
 game.backgroundColor = ex.Color.Black;
 
-var groundHeight = game.getHeight() - 50;
+function generateObstacle() {
+  var obstacleHeight = randInt(Config.obstacleHeightMin, Config.obstacleHeightMax);
+  var obstacle = new Obstacle(game.getWidth() - Config.obstacleWidth / 2, groundHeight - obstacleHeight / 2 - Config.groundOffset / 2, Config.obstacleWidth, obstacleHeight, ex.Color.Blue);
+  obstacle.dx = -55;
+  game.addChild(obstacle);
+}
 
-var Ground = ex.Actor.extend({
-   init: function(){
-      this.preventCollisions = true;
-      this.color = ex.Color.Green;
-   },
-   draw : function(ctx, delta){
-      ctx.fillStyle = ex.Color.Green;
-      ctx.fillRect(0, groundHeight, game.getWidth(), 50);
-   }
-});
-
-var Player = ex.Actor.extend({
-  init: function(){
-    this.y_vel = 0;
-    this.grv = .05;
-
-    // init events
-    this.addEventListener('keydown', function(event){
-      if (event.key === ex.InputKey.Space) {
-        this.y_vel = 1;
-      }
-    });
-    this.addEventListener('update', function(event){
-      this.y -= this.y_vel * event.delta;
-      if (this.y < (groundHeight - 20)) {
-        this.y_vel -= this.grv;
-      }
-      else {
-        this.y_vel = 0;
-        this.y = groundHeight - 20;
-      }
-    });
-  }
-})
-
-var player = new Player(20, groundHeight-20, 20, 20, ex.Color.Red);
+var player = new Player(20, groundHeight - Config.playerHeight, Config.playerWidth, Config.playerHeight, ex.Color.Red);
 player.init();
 game.addChild(player);
 
-var ground = new ex.Actor(0, groundHeight, game.getWidth() * 2, 50, ex.Color.Green);
+var ground = new ex.Actor(game.getWidth() / 2, groundHeight, game.getWidth(), Config.groundOffset, ex.Color.Green);
+ground.collisionType = ex.CollisionType.PreventCollision;
 game.addChild(ground);
 game.start();
+
+setInterval(generateObstacle, 2000);
